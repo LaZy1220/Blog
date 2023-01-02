@@ -1,5 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+mongoose.set("strictQuery", false);
+mongoose
+  .connect("mongodb://127.0.0.1:27017/testDb")
+  .then(() => console.log("DB OK!!!"))
+  .catch((err) => console.log(`DB connection error: ${err}`));
 
 const app = express();
 
@@ -24,7 +30,6 @@ app.post("/auth", (req, res) => {
     token,
   });
 });
-
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
 });
