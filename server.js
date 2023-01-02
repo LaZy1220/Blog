@@ -1,9 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { validationResult } from "express-validator";
+import { registerValidator } from "./validations/auth.js";
+
 mongoose.set("strictQuery", false);
 mongoose
-  .connect("mongodb://127.0.0.1:27017/testDb")
+  .connect("mongodb://127.0.0.1:27017/Blog")
   .then(() => console.log("DB OK!!!"))
   .catch((err) => console.log(`DB connection error: ${err}`));
 
@@ -15,19 +18,13 @@ app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-app.post("/auth", (req, res) => {
-  console.log(req.body);
-  const token = jwt.sign(
-    {
-      email: req.body.email,
-      fullname: req.body.name,
-      pass: req.body.pass,
-    },
-    "secret123"
-  );
+app.post("/auth/register", registerValidator, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json(errors.array());
+  }
   res.json({
-    succsess: true,
-    token,
+    success: true,
   });
 });
 app.listen(4000, (error) => {
