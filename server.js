@@ -59,6 +59,46 @@ app.post("/auth/register", registerValidator, async (req, res) => {
     });
   }
 });
+app.post("/auth/login", async (req, res) => {
+  try {
+    //finde email in db
+    const user = await UserModel.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(404).json({
+        message: "Неверная почта или пароль",
+      });
+    }
+    //check pass on valid
+    const isValidPass = await bcrypt.compare(
+      req.body.password,
+      user._doc.passwordHash
+    );
+    if (!isValidPass) {
+      return res.status(404).json({
+        message: "Неверная почта или пароль",
+      });
+    }
+    //create token
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      "secret",
+      { expiresIn: "30d" }
+    );
+    //response user(not pass) and token
+    const { passwordHash, ...userData } = user._doc;
+    res.json({
+      ...userData,
+      token,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Не удалось авторизоваться",
+    });
+  }
+});
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
 });
