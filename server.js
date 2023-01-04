@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 import UserModel from "./models/User.js";
 import { registerValidator } from "./validations/auth.js";
+import checkAuth from "./utils/checkAuth.js";
 
 mongoose.set("strictQuery", false);
 mongoose
@@ -43,7 +44,7 @@ app.post("/auth/register", registerValidator, async (req, res) => {
       {
         _id: user._id,
       },
-      "secret",
+      "banana",
       { expiresIn: "30d" }
     );
     //response user(not pass) and token
@@ -83,7 +84,7 @@ app.post("/auth/login", async (req, res) => {
       {
         _id: user._id,
       },
-      "secret",
+      "banana",
       { expiresIn: "30d" }
     );
     //response user(not pass) and token
@@ -96,6 +97,26 @@ app.post("/auth/login", async (req, res) => {
     console.log(err);
     res.status(500).json({
       message: "Не удалось авторизоваться",
+    });
+  }
+});
+app.get("/auth/me", checkAuth, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "Пользователь не найден",
+      });
+    }
+    //response user(not pass) and token
+    const { passwordHash, ...userData } = user._doc;
+    res.json({
+      ...userData,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Нет доступа",
     });
   }
 });
