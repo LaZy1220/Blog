@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { registerValidator } from "./validations/auth.js";
+import { loginValidator, registerValidator } from "./validations.js";
 import checkAuth from "./utils/checkAuth.js";
 import { register, login, getMe } from "./controllers/UserController.js";
 
@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/auth/register", registerValidator, register);
-app.post("/auth/login", login);
+app.post("/auth/login", loginValidator, login);
 app.get("/auth/me", checkAuth, getMe);
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
