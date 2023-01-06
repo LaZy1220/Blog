@@ -1,8 +1,19 @@
 import express from "express";
 import mongoose from "mongoose";
-import { loginValidator, registerValidator } from "./validations.js";
+import {
+  loginValidator,
+  postCreateValidator,
+  registerValidator,
+} from "./validations.js";
 import checkAuth from "./utils/checkAuth.js";
 import { register, login, getMe } from "./controllers/UserController.js";
+import {
+  create,
+  getAll,
+  getOne,
+  remove,
+  update,
+} from "./controllers/PostController.js";
 
 mongoose.set("strictQuery", false);
 mongoose
@@ -21,6 +32,12 @@ app.get("/", (req, res) => {
 app.post("/auth/register", registerValidator, register);
 app.post("/auth/login", loginValidator, login);
 app.get("/auth/me", checkAuth, getMe);
+
+app.post("/posts", checkAuth, postCreateValidator, create);
+app.get("posts", getAll);
+app.get("post/:id", getOne);
+app.delete("post/:id", checkAuth, remove);
+app.patch("/post/:id", checkAuth, update);
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
 });
