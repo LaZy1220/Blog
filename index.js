@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import multer from "multer";
 import {
   loginValidator,
   postCreateValidator,
@@ -23,7 +24,19 @@ mongoose
 
 const app = express();
 
+const storage = multer.diskStorage({
+  destination: (_, _, cb) => {
+    cb(null, "uploads");
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.send("Hello");
@@ -34,10 +47,15 @@ app.post("/auth/login", loginValidator, login);
 app.get("/auth/me", checkAuth, getMe);
 
 app.post("/posts", checkAuth, postCreateValidator, create);
+app.post(`/upload`, checkAuth, upload.single("image"), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 app.get("posts", getAll);
 app.get("post/:id", getOne);
 app.delete("post/:id", checkAuth, remove);
-app.patch("/post/:id", checkAuth, update);
+app.patch("/post/:id", checkAuth, postCreateValidator, update);
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
 });
