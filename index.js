@@ -15,6 +15,7 @@ import {
   remove,
   update,
 } from "./controllers/PostController.js";
+import handleValidationError from "./utils/handleValidationError.js";
 
 mongoose.set("strictQuery", false);
 mongoose
@@ -25,7 +26,7 @@ mongoose
 const app = express();
 
 const storage = multer.diskStorage({
-  destination: (_, _, cb) => {
+  destination: (_, __, cb) => {
     cb(null, "uploads");
   },
   filename: (_, file, cb) => {
@@ -42,11 +43,17 @@ app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-app.post("/auth/register", registerValidator, register);
-app.post("/auth/login", loginValidator, login);
+app.post("/auth/register", registerValidator, handleValidationError, register);
+app.post("/auth/login", loginValidator, handleValidationError, login);
 app.get("/auth/me", checkAuth, getMe);
 
-app.post("/posts", checkAuth, postCreateValidator, create);
+app.post(
+  "/posts",
+  checkAuth,
+  postCreateValidator,
+  handleValidationError,
+  create
+);
 app.post(`/upload`, checkAuth, upload.single("image"), (req, res) => {
   res.json({
     url: `/uploads/${req.file.originalname}`,
@@ -55,7 +62,13 @@ app.post(`/upload`, checkAuth, upload.single("image"), (req, res) => {
 app.get("posts", getAll);
 app.get("post/:id", getOne);
 app.delete("post/:id", checkAuth, remove);
-app.patch("/post/:id", checkAuth, postCreateValidator, update);
+app.patch(
+  "/post/:id",
+  checkAuth,
+  postCreateValidator,
+  handleValidationError,
+  update
+);
 app.listen(4000, (error) => {
   error ? console.log(error) : console.log("Server listening 4000....");
 });
