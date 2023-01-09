@@ -12,6 +12,7 @@ import { register, login, getMe } from "./controllers/UserController.js";
 import {
   create,
   getAll,
+  getLastTags,
   getOne,
   remove,
   update,
@@ -49,6 +50,8 @@ app.post("/auth/register", registerValidator, handleValidationError, register);
 app.post("/auth/login", loginValidator, handleValidationError, login);
 app.get("/auth/me", checkAuth, getMe);
 
+app.get("/tags", getLastTags);
+app.get("/posts/tags", getLastTags);
 app.post(
   "/posts",
   checkAuth,
@@ -61,9 +64,9 @@ app.post(`/upload`, checkAuth, upload.single("image"), (req, res) => {
     url: `/uploads/${req.file.originalname}`,
   });
 });
-app.get("posts", getAll);
-app.get("post/:id", getOne);
-app.delete("post/:id", checkAuth, remove);
+app.get("/posts", getAll);
+app.get("/post/:id", getOne);
+app.delete("/post/:id", checkAuth, remove);
 app.patch(
   "/post/:id",
   checkAuth,
