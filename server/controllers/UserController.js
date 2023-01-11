@@ -42,7 +42,7 @@ export const login = async (req, res) => {
     //finde email in db
     const user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "Неверная почта или пароль",
       });
     }
@@ -52,7 +52,7 @@ export const login = async (req, res) => {
       user._doc.passwordHash
     );
     if (!isValidPass) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "Неверная почта или пароль",
       });
     }
