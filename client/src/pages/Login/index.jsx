@@ -9,7 +9,6 @@ import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import styles from "./Login.module.scss";
 import { fetchAuth, selectIsAuth } from "../../redux/slices/auth";
-import { useEffect } from "react";
 
 export const Login = () => {
   const isAuth = useSelector(selectIsAuth);
