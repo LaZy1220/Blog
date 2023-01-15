@@ -11,6 +11,8 @@ import RandomImage from "../../images/randomImage.jpg";
 import styles from "./Post.module.scss";
 import { UserInfo } from "../UserInfo";
 import { PostSkeleton } from "./Skeleton";
+import { useDispatch } from "react-redux";
+import { fetchRemovePost } from "../../redux/slices/posts";
 
 export const Post = ({
   id,
@@ -26,6 +28,12 @@ export const Post = ({
   isLoading,
   isEditable,
 }) => {
+  const dispatch = useDispatch();
+  const onClickRemove = () => {
+    if (window.confirm("Вы действительно хотите удалить статью?")) {
+      dispatch(fetchRemovePost(id));
+    }
+  };
   if (isLoading) {
     return <PostSkeleton />;
   }
@@ -40,7 +48,7 @@ export const Post = ({
             </IconButton>
           </Link>
           <IconButton color="secondary">
-            <DeleteIcon />
+            <DeleteIcon onClick={onClickRemove} />
           </IconButton>
         </div>
       )}
