@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "../axios";
-
+import randomImage from "../images/randomImage.jpg";
 export const FullPost = () => {
   const [data, setData] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +33,9 @@ export const FullPost = () => {
       <Post
         id={data._id}
         title={data.title}
-        imageUrl={`http://localhost:4000${data.imageUrl}`}
+        imageUrl={
+          data.imageUrl ? `http://localhost:4000${data.imageUrl}` : randomImage
+        }
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}

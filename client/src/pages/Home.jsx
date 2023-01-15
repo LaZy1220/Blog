@@ -8,6 +8,7 @@ import { Post } from "../components/Post";
 import { TagsBlock } from "../components/TagsBlock";
 import { CommentsBlock } from "../components/CommentsBlock";
 import { fetchPosts, fetchTags } from "../redux/slices/posts";
+import defaultPicture from "../images/randomImage.jpg";
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -39,7 +40,11 @@ export const Home = () => {
               <Post
                 id={obj._id}
                 title={obj.title}
-                imageUrl={`http://localhost:4000${obj.imageUrl}`}
+                imageUrl={
+                  obj.imageUrl
+                    ? `http://localhost:4000${obj.imageUrl}`
+                    : defaultPicture
+                }
                 user={obj.user}
                 createdAt={obj.createdAt}
                 viewsCount={obj.viewsCount}
