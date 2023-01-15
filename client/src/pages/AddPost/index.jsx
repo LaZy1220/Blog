@@ -3,17 +3,19 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import SimpleMDE from "react-simplemde-editor";
-import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsAuth } from "../../redux/slices/auth";
 import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
 import { useState, useRef } from "react";
 import axios from "../../axios";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export const AddPost = () => {
+  const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
-  const [value, setValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -31,10 +33,28 @@ export const AddPost = () => {
       alert("Ошибка загрузки файла!!!");
     }
   };
-  const onClickRemoveImage = () => {};
+  const onClickRemoveImage = () => {
+    setImageUrl("");
+  };
   const onChange = React.useCallback((value) => {
-    setValue(value);
+    setText(value);
   }, []);
+  const onSubmit = async () => {
+    try {
+      setIsLoading(true);
+      const fields = {
+        title,
+        imageUrl,
+        tags: tags.split(","),
+        text,
+      };
+      const { data } = await axios.post("/posts", fields);
+      const id = data._id;
+      navigate(`/posts/${id}`);
+    } catch (error) {
+      console.warn("Ошибка при создании статьи");
+    }
+  };
 
   const options = React.useMemo(
     () => ({
@@ -102,12 +122,12 @@ export const AddPost = () => {
       />
       <SimpleMDE
         className={styles.editor}
-        value={value}
+        value={text}
         onChange={onChange}
         options={options}
       />
       <div className={styles.buttons}>
-        <Button size="large" variant="contained">
+        <Button onClick={onSubmit} size="large" variant="contained">
           Опубликовать
         </Button>
         <Button size="large">Отмена</Button>
