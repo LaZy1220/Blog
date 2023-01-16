@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -9,9 +9,10 @@ import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
 import { useState, useRef } from "react";
 import axios from "../../axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
 export const AddPost = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,7 @@ export const AddPost = () => {
   const [imageUrl, setImageUrl] = useState("");
   const inputFileRef = useRef(null);
 
+  const isEditing = Boolean(id);
   const handleChangeFile = async (e) => {
     try {
       const formData = new FormData();
@@ -48,14 +50,33 @@ export const AddPost = () => {
         tags,
         text,
       };
-      const { data } = await axios.post("/posts", fields);
-      const id = data._id;
-      navigate(`/posts/${id}`);
+      const { data } = isEditing
+        ? await axios.patch(`/post/${id}`, fields)
+        : await axios.post("/posts", fields);
+
+      const _id = isEditing ? id : data._id;
+      navigate(`/posts/${_id}`);
     } catch (error) {
       console.warn("Ошибка при создании статьи");
     }
   };
 
+  useEffect(() => {
+    if (id) {
+      axios
+        .get(`post/${id}`)
+        .then(({ data }) => {
+          setTitle(data.title);
+          setText(data.text);
+          setImageUrl(data.imageUrl);
+          setTags(data.tags.join(","));
+        })
+        .catch((err) => {
+          console.warn(err);
+          alert("Ошибка при получении статьи");
+        });
+    }
+  }, [id]);
   const options = React.useMemo(
     () => ({
       spellChecker: false,
@@ -128,7 +149,7 @@ export const AddPost = () => {
       />
       <div className={styles.buttons}>
         <Button onClick={onSubmit} size="large" variant="contained">
-          Опубликовать
+          {isEditing ? "Сохранить" : "Опубликовать"}
         </Button>
         <Button size="large">Отмена</Button>
       </div>

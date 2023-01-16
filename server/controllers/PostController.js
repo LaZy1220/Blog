@@ -110,7 +110,7 @@ export const remove = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const postId = req.params.id;
-    PostModel.updateOne(
+    await PostModel.updateOne(
       {
         _id: postId,
       },
@@ -119,7 +119,7 @@ export const update = async (req, res) => {
         text: req.body.text,
         imageUrl: req.body.imageUrl,
         user: req.userId,
-        tags: req.body.tags,
+        tags: req.body.tags.split(","),
       }
     );
     res.json({
